@@ -498,6 +498,8 @@ class MyzcloudParser(object):
             logger.info("获取专辑%s的失败", str(PermissionError))
         except NewConnectionError:
             logger.info("获取专辑%s的失败", str(PermissionError))
+        except requests.exceptions.MissingSchema as e:
+             logger.info("获取专辑%s的失败", str(e))   
 
     def loadDownloadCache(self, albumInfo):
         result = albumInfo.loadf()
@@ -516,15 +518,15 @@ class MyzcloudParser(object):
             return musicInfo
         
         self.__parseMusicDownloadInfo(page, musicInfo)
-    
-        try:
-            time.sleep(random.uniform(0.1, 0.5))
-            musicInfo.downloadUrl = self.crawler.getRealAddress(musicInfo.downloadUrl)
-        except BaseException as e:
-            logger.info("获取url失败", str(e))
-        
         logger.info("完成获取第%s歌曲%s的信息", musicInfo.position, musicInfo.name)
         return musicInfo
+#        try:
+ #           time.sleep(random.uniform(0.1, 0.5))
+ #           musicInfo.downloadUrl = self.crawler.getRealAddress(musicInfo.downloadUrl)
+ #       except BaseException as e:
+ #           logger.info("获取url失败", str(e))
+      
+        
     
     def downloadInfoAndSong(self, musicInfo, counter):
         self.getMusicDownloadInfo(musicInfo)
@@ -626,7 +628,7 @@ def main():
     if args.type == 1:
         counter = collections.Counter()
         for albumInfo in albumList:
-            if albumInfo.dataType == "13":
+            if albumInfo.dataType == "13" or albumInfo.dataType == "7":
                 continue
             logger.info("开始下载专辑%s", albumInfo.name)
             if not isAlbum:

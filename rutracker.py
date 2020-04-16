@@ -12,6 +12,8 @@ def get_args():
     parser.add_argument('id', type=int, default=1727, help="topic或者forumId")
     parser.add_argument('-t', '--type',dest='type', type=int, default=1, help="1:forumId， 2：topicId, 3:subForumId")
     parser.add_argument('-q', '--query',dest='query', type=int, default=0, help="辅助查询")
+    parser.add_argument('-s', '--start',dest='start', type=int, default=0, help="辅助查询")
+    parser.add_argument('-', '--limit',dest='limit', type=int, default=100, help="辅助查询")
    # parser.add_argument('-n', '--threadNum',dest='threadNum', type=int, default=1, help="线程数，最大不超过5，容易被封")
     parse_result = parser.parse_args()
 
@@ -71,6 +73,19 @@ def main():
         with db_session:
             result=orm.select(c for c in RutrackerForumPo)[:]
             result.show()
+    elif args.query == 3:
+        title = "(Progressive Folk) Kollar Attila (Kollár Attila) (ex-Solaris) - Дискография (4 CD), 1998 - 2016, MP3, 320 kbps"
+        groups = re.match("^\(([^\)]+)\)\s*(.*(?=\s-\s))\s-\s\s*((?:Дискография).*).*([0-9]{4})\s*-\s*([0-9]{4}).*((?:FLAC|APE|MP3).*)$", title)
+        if groups :
+            logger.info(" %s:%s:%s:%s:%s:%s",groups.group(1),groups.group(2),groups.group(3),groups.group(4),groups.group(5),groups.group(6))
+        else:
+            logger.warn("解析错误, %s", title)
+    else:
+        result = None
+        with db_session:
+            result=orm.select(c.torTopicTitle for c in RutrackerForumItemPo)[args.start:args.start+args.limit]
+            for value in result:
+                rutracker.parseTorTitle(value)
     #new = json.loads(str)
     
    # print(new["naviList"][0]["name"])

@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 from db.database import *
 from db.rutracker import *
+import re
 cookies="bb_guid=d75Tzc4cGg1T; bb_ssl=1; bb_session=0-31907274-Ah8gtWphowq8R6NgaqgB; bb_t=a%3A50%3A%7Bi%3A5879043%3Bi%3A1586580544%3Bi%3A5879038%3Bi%3A1586579261%3Bi%3A4135450%3Bi%3A1586576432%3Bi%3A4527226%3Bi%3A1586566522%3Bi%3A5675561%3Bi%3A1586563241%3Bi%3A5790215%3Bi%3A1586551045%3Bi%3A5878971%3Bi%3A1586548698%3Bi%3A2872119%3Bi%3A1586545975%3Bi%3A1126419%3Bi%3A1586545896%3Bi%3A5878569%3Bi%3A1586545075%3Bi%3A5026501%3Bi%3A1586545053%3Bi%3A3502497%3Bi%3A1586545005%3Bi%3A5878440%3Bi%3A1586544948%3Bi%3A3686412%3Bi%3A1586541938%3Bi%3A4648572%3Bi%3A1586539229%3Bi%3A5878526%3Bi%3A1586538824%3Bi%3A5250805%3Bi%3A1586538787%3Bi%3A5878865%3Bi%3A1586537747%3Bi%3A3614595%3Bi%3A1586537280%3Bi%3A4347519%3Bi%3A1586536421%3Bi%3A5878060%3Bi%3A1586535699%3Bi%3A4153859%3Bi%3A1586535251%3Bi%3A5224213%3Bi%3A1586534523%3Bi%3A4061105%3Bi%3A1586533785%3Bi%3A5581451%3Bi%3A1586533545%3Bi%3A3781847%3Bi%3A1586532653%3Bi%3A4702488%3Bi%3A1586532602%3Bi%3A5051447%3Bi%3A1586531994%3Bi%3A5051581%3Bi%3A1586531919%3Bi%3A5878792%3Bi%3A1586531546%3Bi%3A4766060%3Bi%3A1586531196%3Bi%3A3951790%3Bi%3A1586528658%3Bi%3A2121048%3Bi%3A1586525189%3Bi%3A5208782%3Bi%3A1586525161%3Bi%3A5878727%3Bi%3A1586524559%3Bi%3A4665138%3Bi%3A1586524180%3Bi%3A5878197%3Bi%3A1586521146%3Bi%3A5878065%3Bi%3A1586519906%3Bi%3A5433670%3Bi%3A1586519825%3Bi%3A4603571%3Bi%3A1586517549%3Bi%3A2915239%3Bi%3A1586515839%3Bi%3A5878607%3Bi%3A1586512620%3Bi%3A5878590%3Bi%3A1586511131%3Bi%3A5878587%3Bi%3A1586510784%3Bi%3A5802182%3Bi%3A1586509989%3Bi%3A5762642%3Bi%3A1586509850%3Bi%3A5181610%3Bi%3A1586509366%3Bi%3A5878560%3Bi%3A1586508330%3Bi%3A5878555%3Bi%3A1586507819%3Bi%3A4344078%3Bi%3A1586507464%3B%7D; opt_js={%22only_new%22:0%2C%22h_flag%22:0%2C%22h_av%22:0%2C%22h_rnk_i%22:0%2C%22h_post_i%22:0%2C%22h_smile%22:0%2C%22h_sig%22:0%2C%22sp_op%22:0%2C%22tr_tm%22:0%2C%22h_cat%22:%22%22%2C%22h_tsp%22:0%2C%22h_ta%22:0}; _ym_d=1585370144; _ym_uid=15738641931040225246; __cfduid=dbcf260767d865c1710f9b888239991ae1585373121; _ym_hostIndex=0-2%2C1-1; _ym_isad=2; _ym_wasSynced=%7B%22time%22%3A1586622210956%2C%22params%22%3A%7B%22eu%22%3A0%7D%2C%22bkParams%22%3A%7B%7D%7D"
 #cookies="bb_guid=d75Tzc4cGg1T; bb_ssl=1; bb_session=0-31907274-Ah8gtWphowq8R6NgaqgB; opt_js={%22only_new%22:1%2C%22h_flag%22:0%2C%22h_av%22:0%2C%22h_rnk_i%22:0%2C%22h_post_i%22:0%2C%22h_smile%22:0%2C%22h_sig%22:0%2C%22sp_op%22:0%2C%22tr_tm%22:0%2C%22h_cat%22:%22%22%2C%22h_tsp%22:0%2C%22h_ta%22:0}; bb_t=a%3A50%3A%7Bi%3A5875985%3Bi%3A1586128241%3Bi%3A2391152%3Bi%3A1586107345%3Bi%3A5872006%3Bi%3A1586107220%3Bi%3A5875440%3Bi%3A1586105066%3Bi%3A5875498%3Bi%3A1586104820%3Bi%3A5876228%3Bi%3A1586099834%3Bi%3A5876217%3Bi%3A1586098677%3Bi%3A5586279%3Bi%3A1586090397%3Bi%3A5107865%3Bi%3A1586085404%3Bi%3A5876081%3Bi%3A1586084330%3Bi%3A5876061%3Bi%3A1586082165%3Bi%3A5224358%3Bi%3A1586081899%3Bi%3A5876058%3Bi%3A1586081846%3Bi%3A2715186%3Bi%3A1586081810%3Bi%3A5875082%3Bi%3A1586081558%3Bi%3A5876050%3Bi%3A1586080879%3Bi%3A5876040%3Bi%3A1586080194%3Bi%3A5874286%3Bi%3A1586080176%3Bi%3A4722474%3Bi%3A1586080100%3Bi%3A5876028%3Bi%3A1586079406%3Bi%3A5876027%3Bi%3A1586079321%3Bi%3A5813883%3Bi%3A1586078314%3Bi%3A4202396%3Bi%3A1586078175%3Bi%3A5216687%3Bi%3A1586078169%3Bi%3A5812159%3Bi%3A1586077996%3Bi%3A5502408%3Bi%3A1586077143%3Bi%3A4575696%3Bi%3A1586076839%3Bi%3A2641781%3Bi%3A1586076640%3Bi%3A5875268%3Bi%3A1586076047%3Bi%3A5245595%3Bi%3A1586074646%3Bi%3A5875952%3Bi%3A1586073638%3Bi%3A5875950%3Bi%3A1586073399%3Bi%3A5875948%3Bi%3A1586073157%3Bi%3A5484008%3Bi%3A1586072845%3Bi%3A5547622%3Bi%3A1586070325%3Bi%3A5875911%3Bi%3A1586070059%3Bi%3A3330271%3Bi%3A1586067407%3Bi%3A5875868%3Bi%3A1586062692%3Bi%3A5731107%3Bi%3A1586061234%3Bi%3A5875863%3Bi%3A1586061071%3Bi%3A5875862%3Bi%3A1586060944%3Bi%3A5813840%3Bi%3A1586044790%3Bi%3A3002619%3Bi%3A1586042013%3Bi%3A5340534%3Bi%3A1586037150%3Bi%3A5875179%3Bi%3A1586036577%3Bi%3A5729085%3Bi%3A1586036161%3Bi%3A5875802%3Bi%3A1586033772%3Bi%3A3924101%3Bi%3A1586031209%3Bi%3A5805722%3Bi%3A1586030008%3Bi%3A5476038%3Bi%3A1586027192%3B%7D; _ym_d=1585370144; _ym_uid=15738641931040225246; __cfduid=dbcf260767d865c1710f9b888239991ae1585373121; _ym_isad=2; _ym_wasSynced=%7B%22time%22%3A1586134735836%2C%22params%22%3A%7B%22eu%22%3A0%7D%2C%22bkParams%22%3A%7B%7D%7D; _ym_hostIndex=0-3%2C1-2"
 cookies2 = dict(map(lambda x:x.split('='),cookies.split(";")))
@@ -33,11 +34,48 @@ headers={
 class Rutracker(object):
     def __init__(self, baseUrl):
         self.baseUrl = baseUrl
-        self.crawler = Crawler(headers=headers, cookies=cookies2, encoding='windows-1251')
+        self.crawler = Crawler(headers=headers, cookies=cookies2, encoding='windows-1251', proxies={'http':"http://127.0.0.1:10001", 'https':"https://127.0.0.1:10001"})
     
     def __getPage(self, url):
         return self.crawler.fetch(urladdr=url)
     
+    def parseTorTitle(self, title):
+        index = title.find(")")
+        if index == -1:
+            logger.warn("解析错误, 没有genre：%s", title)
+            return
+        
+        genre = title[1:index]
+        
+        remains = title[index + 1:]
+         
+        albumName = None
+        
+      
+    
+        if remains.find("дискография")  == -1 and remains.find("Дискография") == -1 and  remains.find("Коллекция") == -1 and remains.find("Discography") == -1: 
+            groups=re.match("^(\([^\)]+\))\s*(?:\[[^\]]+\]\s*)?([^-:]+)\s*-\s*(.*)\s*-\s*([0-9]+(?:/[0-9]+)?)\s*,(.*)", title)
+            if groups:
+               # logger.info(" %s:%s:%s:%s:%s",groups.group(1),groups.group(2),groups.group(3),groups.group(4),groups.group(5))
+                pass
+            else:
+                #logger.warn("解析错误, 没有genre：%s", title)
+                pass
+        else:
+            key="(?:Официальная дискография|Почти полная дискография|Дискография|Полная студийная дискография|Discography|Studio Discography|Неофициальная дискография|Studio Discography|Unofficial Discography|Полная Дискография|Collection/Коллекция|Дискография|Студийная дискография|FULL Discography|Full Discography|Discography/Дискография|Студийная дискография|Коллекция|Discography|дискография|Дискография|Дискография|Официальная Дискография|Двухальбомная дискография)"
+            noKey="(?=[-:—–,\(·/]\s*" + key + ")"
+            musicFormat="(?:FLAC|Flac|APE|MP3|flac|WavPack|WAVPack|ISO.WAVPack|Ape&Wav)"
+            groups = re.match("^(?:\[[^\]]+\]\s*)?\(([^\)]+)\)\s*(?:\[[^\]]+\]\s*)?(.*"+ noKey +")[-:–—,\(·/]\s*(" + key + ".*)(?:\[|\()?.*([0-9]{4})\s*[-,/—]\s*([0-9]{4}).*(?=\[|\))?.*("+musicFormat+".*)$", title)
+            if groups:
+                #logger.info(" %s:%s:%s:%s:%s:%s",groups.group(1),groups.group(2),groups.group(3),groups.group(4),groups.group(5),groups.group(6))
+                return
+            groups = re.match("^(?:\[[^\]]+\]\s*)?\(([^\)]+)\)\s*(?:\[[^\]]+\]\s*)?(.*"+ noKey +")[-:—,\(·/]\s*(" + key + ".*).*("+musicFormat+".*)$", title)    
+            if groups :
+               # logger.info(" %s:%s:%s:%s:%s:%s",groups.group(1),groups.group(2),groups.group(3),groups.group(4),groups.group(5),groups.group(6))
+                pass
+            else:
+                logger.warn("解析错误, %s", title)
+  
     def getForumInfoByPage(self, id, page=0):
         forum = RutrackerForum(forumId=id)
         url=forum.url
@@ -237,10 +275,9 @@ class Rutracker(object):
         
         if hasattr(firstForumInfo, "error") and firstForumInfo.error != None:
             return
-        
-        logger.info("下载第1页")
-        self.saveForumInfo(firstForumInfo, saveForumNavi=True)
         totalPage= firstForumInfo.totalPage
+        logger.info("下载第1页, 共%d",totalPage )
+        self.saveForumInfo(firstForumInfo, saveForumNavi=True)
         
         for i in range(start, totalPage - 1):
             time.sleep(random.uniform(0.1, 1))

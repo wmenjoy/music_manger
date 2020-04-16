@@ -104,5 +104,6 @@ venv.bak/
 /site
 
 songs_dir/
+db/music_sqlite
 # mypy
 .mypy_cache/

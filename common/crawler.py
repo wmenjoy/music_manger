@@ -15,16 +15,16 @@ class Crawler(object):
         self.proxies = proxies
         if self.proxies == None:
             self.proxies = {"http":None, "https":None}
-    def __fetch(self, urladdr, headers={}, cookies=None):
-        res = requests.get(urladdr, headers = headers, cookies = cookies, proxies=self.proxies)
+    def __fetch(self, urladdr, params={}, headers={}, cookies=None):
+        res = requests.get(urladdr, params=params, headers = headers, cookies = cookies, proxies=self.proxies)
         res.encoding = self.encoding
         return res.text
     
-    def fetch(self, urladdr):  
+    def fetch(self, urladdr, params={}):  
         i = 0
         while i < 3:
             try:
-                return self.__fetch(urladdr, headers=self.headers, cookies = self.cookies)
+                return self.__fetch(urladdr, params=params, headers=self.headers, cookies = self.cookies)
             except BaseException as e:
                 print("有异常发生" + str(e))
                 i = i + 1
