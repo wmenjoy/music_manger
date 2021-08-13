@@ -563,9 +563,9 @@ class MyzcloudParser(object):
 # 禁止 requests 模组使用系统代理
 #os.environ['no_proxy'] = '*'
 #logger = set_logger()
-crawler = Crawler(proxies={'http':"http://127.0.0.1:10001", 'https':"https://127.0.0.1:10001"})
-#crawler = Crawler(proxies={'http':None, 'https':None})
-parser = MyzcloudParser(baseUrl="https://myzcloud.me/{0}", crawler=crawler);
+#crawler = Crawler(proxies={'http':"http://127.0.0.1:10001", 'https':"https://127.0.0.1:10001"})
+crawler = Crawler(proxies={'http':None, 'https':None})
+parser = MyzcloudParser(baseUrl="https://w1.musify.club/{0}", crawler=crawler);
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -594,13 +594,13 @@ def main():
     logger.info("开始获取：%s", args.url)
     
     albumList=[]
-    isAlbum=args.url.startswith("https://myzcloud.me/album") or args.url.startswith("https://myzcloud.me/en/album") or args.url.startswith("http://myzcloud.me/album") or args.url.startswith("http://myzcloud.me/en/album")
+    isAlbum=args.url.startswith("https://w1.musify.club/") or args.url.startswith("https://w1.musify.club/en/") 
     if isAlbum:
         albumInfo=parser._getAlbumInfoByUrl(crawler.fetch(urladdr=args.url))
         albumList.append(albumInfo)
     else:
-        if not args.url.endswith("albums"):
-            args.url = args.url + "/albums"
+        if not args.url.endswith("releases"):
+            args.url = args.url + "/releases"
         page = crawler.fetch(urladdr=args.url)
        # outputFile=CURRENT_PATH+"/albumList.html"
         #page = open(outputFile, 'r').read()
