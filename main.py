@@ -594,7 +594,7 @@ def main():
     logger.info("开始获取：%s", args.url)
     
     albumList=[]
-    isAlbum=args.url.startswith("https://w1.musify.club/") or args.url.startswith("https://w1.musify.club/en/") 
+    isAlbum=args.url.startswith("https://musify.club/") or args.url.startswith("https://musify.club/en/") 
     if isAlbum:
         albumInfo=parser._getAlbumInfoByUrl(crawler.fetch(urladdr=args.url))
         albumList.append(albumInfo)
