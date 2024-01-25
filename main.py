@@ -330,7 +330,7 @@ def get_filePath_fileName_fileExt(filename):
 
 
 class MyzcloudParser(object):
-    def __init__(self, crawler, baseUrl="https://myzcloud.me/{0}"):
+    def __init__(self, crawler, baseUrl="https://musify.club/{0}"):
         self.baseUrl=baseUrl
         self.crawler=crawler
     def __getUrl(self, url):
@@ -349,6 +349,7 @@ class MyzcloudParser(object):
     def parseAlbumInfoList(self, page):
         bs = BeautifulSoup(page,"html.parser")
         bodyContent = bs.find(id='bodyContent')
+
         artist=self.__parseArtist(bodyContent)
         albumList=[]
         divAlblumsList=bodyContent.find(id="divAlbumsList")
@@ -376,7 +377,7 @@ class MyzcloudParser(object):
         
         if page == None:
             raise Exception("获取网页失败")
-        
+
         bs = BeautifulSoup(page,"html.parser")
         
         fullName = None
@@ -404,7 +405,7 @@ class MyzcloudParser(object):
             if albumInfo == None and isinstance(child, Tag) and child["class"][0] == "col-auto":
                 imgTag = child.img
                 albumName = imgTag["alt"]
-                image = imgTag["src"]
+                image = imgTag["data-src"]
             if isinstance(child, Tag) and child["class"][0] == "col-md-7": 
                 genreTag=child.p
                 for aChild in genreTag.children:
@@ -417,7 +418,8 @@ class MyzcloudParser(object):
                     timeTag = uChild.time
                     if timeTag == None:
                         metaTag = uChild.find(name="meta", attrs={"itemprop":"name"})
-                        artist=metaTag["content"]
+                        if metaTag != None:
+                            artist=metaTag["content"]
                     else:
                         year = uChild.a.string  
     
@@ -429,15 +431,19 @@ class MyzcloudParser(object):
                 musicArtist=playListItemDiv['data-artist']
                 musicName=playListItemDiv['data-name']
                 playerControllDiv=playListItemDiv.find(name="div", attrs={"class":"playlist__control play"})
+                if playerControllDiv == None:
+                    print(musicName)
+                    continue
                 musicPostion=playerControllDiv['data-position']
                 musicDatatile=playerControllDiv['data-title']
-                playHeadingDiv=playListItemDiv.find(name="div", attrs={"class":"playlist__heading"})
+                playHeadingDiv=playListItemDiv.find(name="div", attrs={"class":"playlist__actions"})
                 spanDelete=playHeadingDiv.find(name="span", attrs={"class":"badge badge-pill badge-danger"})
                 if spanDelete  != None:
                     print(musicName + " is " + spanDelete.string)
                     continue
                 headATag=playHeadingDiv.a
                 musicUrl=self.__getUrl(headATag["href"])
+                print(musicUrl)
                 musicInfo = MusicInfo(name=musicName, album=albumName, url=musicUrl, artist=musicArtist, dataTitle=musicDatatile, postion=musicPostion)
                 musicList.append(musicInfo)
         
@@ -506,13 +512,18 @@ class MyzcloudParser(object):
         return albumInfo
         
     def getMusicDownloadInfo(self, musicInfo):
-        
+        musicInfo.downloadUrl = musicInfo.url
+
         if musicInfo.downloadUrl != None and  musicInfo.downloadUrl != "":
             return musicInfo
-        
+
         logger.info("开始获取第%s歌曲%s的信息", musicInfo.position, musicInfo.name)
+
+
+
         page=self.crawler.fetch(musicInfo.url)
-        
+
+        return
         if page == None:
             print(musicInfo.name)
             return musicInfo
@@ -544,7 +555,7 @@ class MyzcloudParser(object):
                 else :
                     logger.info("已经下载过第%s歌曲%s", musicInfo.position, musicInfo.name)
                     return
-            
+            print(musicInfo.downloadUrl)
             downloadName=song_name + ".bak"
             time.sleep(random.uniform(0.1,2))
             success=self.crawler.getSongByUrl(song_url=musicInfo.downloadUrl, song_name=downloadName, counter=counter, checkHeader=False)
@@ -565,7 +576,7 @@ class MyzcloudParser(object):
 #logger = set_logger()
 #crawler = Crawler(proxies={'http':"http://127.0.0.1:10001", 'https':"https://127.0.0.1:10001"})
 crawler = Crawler(proxies={'http':None, 'https':None})
-parser = MyzcloudParser(baseUrl="https://w1.musify.club/{0}", crawler=crawler);
+parser = MyzcloudParser(baseUrl="https://musify.club/{0}", crawler=crawler);
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -594,13 +605,13 @@ def main():
     logger.info("开始获取：%s", args.url)
     
     albumList=[]
-    isAlbum=args.url.startswith("https://musify.club/") or args.url.startswith("https://musify.club/en/") 
+    isAlbum=args.url.startswith("https://musify.club/release") or args.url.startswith("https://musify.club/en/release") or args.url.startswith("http://myzcloud.me/album") or args.url.startswith("http://myzcloud.me/en/album")
     if isAlbum:
         albumInfo=parser._getAlbumInfoByUrl(crawler.fetch(urladdr=args.url))
         albumList.append(albumInfo)
     else:
-        if not args.url.endswith("releases"):
-            args.url = args.url + "/releases"
+        if not args.url.endswith("albums"):
+            args.url = args.url + "/albums"
         page = crawler.fetch(urladdr=args.url)
        # outputFile=CURRENT_PATH+"/albumList.html"
         #page = open(outputFile, 'r').read()
